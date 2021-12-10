@@ -91,30 +91,26 @@ class IncomingMessage < ApplicationRecord
     parse_raw_email! if last_parsed.nil?
   end
 
-  def parse_raw_email!(force = nil)
+  def parse_raw_email!
     # The following fields may be absent; we treat them as cached
     # values in case we want to regenerate them (due to mail
     # parsing bugs, etc).
-    if self.raw_email.nil?
-      raise "Incoming message id=#{id} has no raw_email"
-    end
-    if (!force.nil? || self.last_parsed.nil?)
-      ActiveRecord::Base.transaction do
-        self.extract_attachments!
-        self.sent_at = raw_email.date || created_at
-        self.subject = raw_email.subject
-        self.mail_from = raw_email.from_name
-        if from_email
-          self.mail_from_domain =
-            PublicBody.extract_domain_from_email(from_email)
-        else
-          self.mail_from_domain = ""
-        end
-        self.valid_to_reply_to = raw_email.valid_to_reply_to?
-        self.last_parsed = Time.zone.now
-        self.foi_attachments.reload
-        self.save!
+    raise "Incoming message id=#{id} has no raw_email" if raw_email.nil?
+
+    ActiveRecord::Base.transaction do
+      self.extract_attachments!
+      self.sent_at = raw_email.date || created_at
+      self.subject = raw_email.subject
+      self.mail_from = raw_email.from_name
+      if from_email
+        self.mail_from_domain = PublicBody.extract_domain_from_email(from_email)
+      else
+        self.mail_from_domain = ''
       end
+      self.valid_to_reply_to = raw_email.valid_to_reply_to?
+      self.last_parsed = Time.zone.now
+      self.foi_attachments.reload
+      self.save!
     end
   end
 
