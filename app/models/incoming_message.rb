@@ -102,11 +102,8 @@ class IncomingMessage < ApplicationRecord
       self.sent_at = raw_email.date || created_at
       self.subject = raw_email.subject
       self.mail_from = raw_email.from_name
-      if from_email
-        self.mail_from_domain = PublicBody.extract_domain_from_email(from_email)
-      else
-        self.mail_from_domain = ''
-      end
+      self.mail_from_domain =
+        PublicBody.extract_domain_from_email(from_email).to_s
       self.valid_to_reply_to = raw_email.valid_to_reply_to?
       self.last_parsed = Time.zone.now
       self.foi_attachments.reload
