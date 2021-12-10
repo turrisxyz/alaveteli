@@ -86,6 +86,11 @@ class IncomingMessage < ApplicationRecord
     self.info_request_events.detect { |e| e.event_type == 'response' }
   end
 
+  def parse_raw_email
+    raise "Incoming message id=#{id} has no raw_email" if raw_email.nil?
+    parse_raw_email! if last_parsed.nil?
+  end
+
   def parse_raw_email!(force = nil)
     # The following fields may be absent; we treat them as cached
     # values in case we want to regenerate them (due to mail
@@ -120,12 +125,12 @@ class IncomingMessage < ApplicationRecord
   # The cached fields mentioned in the previous comment
 
   # Public: Can this message be replied to?
-  # Caches the value set by raw_email.valid_to_reply_to? in #parse_raw_email!
+  # Caches the value set by raw_email.valid_to_reply_to? in #parse_raw_email
   # #valid_to_reply_to overrides the ActiveRecord provided #valid_to_reply_to
   #
   # Returns a Boolean
   def valid_to_reply_to
-    parse_raw_email!
+    parse_raw_email
     super
   end
 
@@ -137,7 +142,7 @@ class IncomingMessage < ApplicationRecord
   #
   # Returns an ActiveSupport::TimeWithZone
   def sent_at
-    parse_raw_email!
+    parse_raw_email
     super
   end
 
@@ -156,7 +161,7 @@ class IncomingMessage < ApplicationRecord
   #
   # Returns a String or nil
   def subject
-    parse_raw_email!
+    parse_raw_email
     super
   end
 
@@ -175,7 +180,7 @@ class IncomingMessage < ApplicationRecord
   #
   # Returns a String or nil
   def mail_from
-    parse_raw_email!
+    parse_raw_email
     super
   end
 
@@ -212,7 +217,7 @@ class IncomingMessage < ApplicationRecord
   #
   # Returns a String
   def mail_from_domain
-    parse_raw_email!
+    parse_raw_email
     super
   end
 
@@ -440,7 +445,7 @@ class IncomingMessage < ApplicationRecord
   end
   # Returns body text from main text part of email, converted to UTF-8
   def get_main_body_text_internal
-    parse_raw_email!
+    parse_raw_email
     main_part = get_main_body_text_part
     return _convert_part_body_to_text(main_part)
   end
@@ -545,7 +550,7 @@ class IncomingMessage < ApplicationRecord
   end
 
   def get_attachments_for_display
-    parse_raw_email!
+    parse_raw_email
     # return what user would consider attachments, i.e. not the main body
     main_part = get_main_body_text_part
     attachments = []
