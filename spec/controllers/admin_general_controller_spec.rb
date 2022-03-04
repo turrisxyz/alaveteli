@@ -32,6 +32,11 @@ RSpec.describe AdminGeneralController do
 
     it 'assigns requests that require admin to the view' do
       requires_admin_request = FactoryBot.create(:requires_admin_request)
+
+      # A request that did require admin attention but no longer does and is
+      # waiting for the user to update the status should not appear
+      FactoryBot.create(:requires_admin_request, :awaiting_description)
+
       sign_in admin_user
       get :index
       expect(assigns[:requires_admin_requests]).to eq([requires_admin_request])
@@ -39,6 +44,11 @@ RSpec.describe AdminGeneralController do
 
     it 'assigns requests that have error messages to the view' do
       error_message_request = FactoryBot.create(:error_message_request)
+
+      # A request that did have an error message but no longer does and is
+      # waiting for the user to update the status should not appear
+      FactoryBot.create(:error_message_request, :awaiting_description)
+
       sign_in admin_user
       get :index
       expect(assigns[:error_message_requests]).to eq([error_message_request])
@@ -46,6 +56,11 @@ RSpec.describe AdminGeneralController do
 
     it 'assigns requests flagged for admin attention to the view' do
       attention_requested_request = FactoryBot.create(:attention_requested_request)
+
+      # A request that did have a request for attention but no longer does
+      # and is waiting for the user to update the status should not appear
+      FactoryBot.create(:attention_requested_request, :awaiting_description)
+
       sign_in admin_user
       get :index
       expect(assigns[:attention_requests]).to eq([attention_requested_request])

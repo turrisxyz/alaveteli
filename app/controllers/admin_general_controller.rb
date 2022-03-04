@@ -8,14 +8,22 @@ class AdminGeneralController < AdminController
 
   def index
     # Tasks to do
-    @requires_admin_requests = InfoRequest.
-      find_in_state('requires_admin').
+    @requires_admin_requests =
+      InfoRequest.
+        find_in_state('requires_admin').
+        where(awaiting_description: false).
         not_embargoed
-    @error_message_requests = InfoRequest.
-      find_in_state('error_message').
+
+    @error_message_requests =
+      InfoRequest.
+        find_in_state('error_message').
+        where(awaiting_description: false).
         not_embargoed
-    @attention_requests = InfoRequest.
-      find_in_state('attention_requested').
+
+    @attention_requests =
+      InfoRequest.
+        find_in_state('attention_requested').
+        where(awaiting_description: false).
         not_embargoed
 
     @old_unclassified_count =
