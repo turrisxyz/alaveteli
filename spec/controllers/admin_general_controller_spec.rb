@@ -257,6 +257,13 @@ RSpec.describe AdminGeneralController do
         with_feature_enabled(:alaveteli_pro) do
           requires_admin_request = FactoryBot.create(:requires_admin_request)
           requires_admin_request.create_embargo
+
+          # A request that did require admin attention but no longer does and is
+          # waiting for the user to update the status should not appear
+          FactoryBot.create(:requires_admin_request,
+                            :embargoed,
+                            :awaiting_description)
+
           sign_in pro_admin_user
           get :index
           expect(assigns[:embargoed_requires_admin_requests]).
@@ -268,6 +275,13 @@ RSpec.describe AdminGeneralController do
         with_feature_enabled(:alaveteli_pro) do
           error_message_request = FactoryBot.create(:error_message_request)
           error_message_request.create_embargo
+
+          # A request that did have an error message but no longer does and is
+          # waiting for the user to update the status should not appear
+          FactoryBot.create(:error_message_request,
+                            :embargoed,
+                            :awaiting_description)
+
           sign_in pro_admin_user
           get :index
           expect(assigns[:embargoed_error_message_requests]).
@@ -280,6 +294,13 @@ RSpec.describe AdminGeneralController do
           attention_requested_request =
             FactoryBot.create(:attention_requested_request)
           attention_requested_request.create_embargo
+
+          # A request that did have a request for attention but no longer does
+          # and is waiting for the user to update the status should not appear
+          FactoryBot.create(:attention_requested_request,
+                            :embargoed,
+                            :awaiting_description)
+
           sign_in pro_admin_user
           get :index
           expect(assigns[:embargoed_attention_requests]).

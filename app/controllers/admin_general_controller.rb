@@ -70,13 +70,16 @@ class AdminGeneralController < AdminController
     if can? :admin, AlaveteliPro::Embargo
       @embargoed_requires_admin_requests = InfoRequest.
                                              find_in_state('requires_admin').
-                                               embargoed
+                                             where(awaiting_description: false).
+                                             embargoed
       @embargoed_error_message_requests = InfoRequest.
                                             find_in_state('error_message').
-                                              embargoed
+                                             where(awaiting_description: false).
+                                            embargoed
       @embargoed_attention_requests = InfoRequest.
                                         find_in_state('attention_requested').
-                                          embargoed
+                                        where(awaiting_description: false).
+                                        embargoed
 
       @embargoed_request_tasks = [
         @embargoed_requires_admin_requests,
